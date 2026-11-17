@@ -1,0 +1,145 @@
+<view class="page">
+
+  <view class="hero">
+    <view class="hero-glow"></view>
+
+    <view class="hero-bar">
+      <view class="ribbon" wx:if="{{lunar}}">今日 · 农历{{lunar}}</view>
+      <view class="hero-actions">
+        <view class="pill" bindtap="goOrders">我的点单</view>
+        <view class="pill ghost" bindtap="goKitchen">厨房</view>
+      </view>
+    </view>
+
+    <view class="kicker">
+      <view class="crown">
+        <view class="crown-p"></view>
+        <view class="crown-p mid"></view>
+        <view class="crown-p"></view>
+        <view class="crown-base"></view>
+      </view>
+      <text>Kitty的小食堂</text>
+      <view class="crown">
+        <view class="crown-p"></view>
+        <view class="crown-p mid"></view>
+        <view class="crown-p"></view>
+        <view class="crown-base"></view>
+      </view>
+    </view>
+
+    <view class="title serif">今天想吃<text class="title-accent">什么</text></view>
+    <view class="title-underline"></view>
+    <view class="sub">{{greeting}} · {{todayText}}</view>
+  </view>
+
+  <view class="cuisines">
+    <view
+      wx:for="{{cuisines}}"
+      wx:key="id"
+      class="cuisine {{item.id === activeCuisine ? 'on' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onCuisine"
+    >
+      <view class="cuisine-name serif">{{item.name}}</view>
+      <view class="cuisine-tag">{{item.tagline}}</view>
+    </view>
+  </view>
+
+  <view class="cats" wx:if="{{groups.length > 1}}">
+    <view
+      wx:for="{{groups}}"
+      wx:key="id"
+      class="cat {{index % 2 === 0 ? 'tilt-l' : 'tilt-r'}} {{item.id === activeGroup ? 'on' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onGroup"
+    >{{item.name}}</view>
+  </view>
+
+  <view class="base-block" wx:if="{{isHotpot}}">
+    <view class="base-head">
+      <view class="base-title">
+        <text class="base-step">第 1 步</text>
+        <text class="base-name">先挑锅底</text>
+      </view>
+      <view class="base-meta">{{baseCount > 0 ? '已选 ' + baseCount + ' 个' : '最多两个，鸳鸯锅正好'}}</view>
+    </view>
+
+    <view class="base-list">
+      <view
+        wx:for="{{bases}}"
+        wx:key="id"
+        class="base-card {{item.qty > 0 ? 'on' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onAddBase"
+      >
+        <view class="base-frame">
+          <image class="base-img" wx:if="{{item.img}}" src="{{item.img}}" mode="aspectFill" lazy-load="true" />
+          <view class="base-img img-ph" wx:else>{{item.initial}}</view>
+          <view class="base-badge" wx:if="{{item.qty > 0}}">×{{item.qty}}</view>
+        </view>
+        <view class="base-cname serif">{{item.name}}</view>
+        <view class="base-cmeta">{{item.calories}} kcal · {{item.spicyText}}</view>
+      </view>
+    </view>
+
+    <view class="base-tip" wx:if="{{baseHint}}">还没选锅底，火锅没底可不行</view>
+  </view>
+
+  <view class="state" wx:if="{{loading}}">
+    <view class="state-title">正在摆菜单…</view>
+    <view class="state-text">从云端取今天能点的菜</view>
+  </view>
+
+  <view class="list" wx:elif="{{shown.length > 0}}">
+    <view class="sec-title">
+      <text class="sec-label">{{isHotpot ? '第 2 步 · 挑涮菜' : '今日菜单'}}</text>
+      <text class="sec-more">共 {{shown.length}} 道</text>
+    </view>
+
+    <view
+      class="dish"
+      wx:for="{{shown}}"
+      wx:key="id"
+      style="animation-delay: {{index * 45}}ms"
+      data-id="{{item.id}}"
+      bindtap="goDish"
+    >
+      <view class="frame">
+        <image class="dish-img" wx:if="{{item.img}}" src="{{item.img}}" mode="aspectFill" lazy-load="true" />
+        <view class="dish-img img-ph" wx:else>{{item.initial}}</view>
+      </view>
+      <view class="dish-body">
+        <view class="dish-head">
+          <text class="dish-name serif">{{item.name}}</text>
+          <text class="cal-chip">{{item.calories}} kcal</text>
+        </view>
+        <view class="dish-desc">{{item.desc}}</view>
+        <view class="dish-tags">
+          <text class="tag" wx:for="{{item.tags}}" wx:for-item="t" wx:key="*this">{{t}}</text>
+        </view>
+        <view class="dish-foot">
+          <text class="meta">{{item.minutes}} 分钟</text>
+          <text class="dot">·</text>
+          <text class="{{item.spicy > 0 ? 'spicy' : 'spicy-empty'}}">{{item.spicyText}}</text>
+          <view class="add" catchtap="onAdd" data-id="{{item.id}}">+</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="state" wx:else>
+    <image class="illus" src="/assets/illus/empty-plate.png" mode="aspectFit" />
+    <view class="state-title">这一栏还空着</view>
+    <view class="state-text">换一个分类看看吧</view>
+  </view>
+
+  <view class="cartbar" wx:if="{{cartCount > 0}}" bindtap="goCart">
+    <view class="cartbar-ribbon">🎀</view>
+    <view class="cartbar-info">
+      <view class="cartbar-count">已点 {{cartCount}} 道</view>
+      <view class="cartbar-cal">合计约 {{cartCal}} kcal</view>
+    </view>
+    <view class="cartbar-btn">去点单</view>
+  </view>
+
+</view>

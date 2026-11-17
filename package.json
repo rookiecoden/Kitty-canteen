@@ -1,0 +1,13 @@
+{
+  "name": "family-order",
+  "version": "1.0.0",
+  "private": true,
+  "description": "口米子的专属小食堂",
+  "dependencies": {
+    "@tencent-ai/workbuddy-cloud-sdk": "^0.1.4-dev.71e5d1e.202611161655"
+  },
+  "devDependencies": {
+    "lunar-javascript": "^1.7.8",
+    "sharp": "^0.35.5"
+  }
+}

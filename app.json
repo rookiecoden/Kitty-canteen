@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/dish/dish",
+    "pages/cart/cart",
+    "pages/orders/orders",
+    "pages/kitchen/kitchen",
+    "pages/menu-admin/menu-admin",
+    "pages/dish-edit/dish-edit"
+  ],
+  "window": {
+    "navigationBarTitleText": "Kitty的小食堂",
+    "navigationBarBackgroundColor": "#FDF7F4",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FDF7F4",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

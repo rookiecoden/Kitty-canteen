@@ -1,0 +1,141 @@
+<view class="page" wx:if="{{items.length > 0}}">
+
+  <view class="intro">
+    <view class="intro-kicker">
+      <text class="kicker-star">✦</text>
+      <text>确认菜单</text>
+    </view>
+    <view class="intro-title serif">就这么定啦</view>
+    <view class="intro-sub">写清口味和时间，大厨照着做</view>
+  </view>
+
+  <view class="need-base" wx:if="{{needBase}}" bindtap="goHome">
+    <text class="need-mark">!</text>
+    <text class="need-text">火锅还差个锅底</text>
+    <text class="need-link">回去选 ›</text>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">你点的菜<text class="sec-more">共 {{count}} 道</text></view>
+    <view class="sheet items">
+      <view class="item" wx:for="{{items}}" wx:key="id">
+        <view class="item-frame">
+          <image class="item-img" wx:if="{{item.img}}" src="{{item.img}}" mode="aspectFill" />
+          <view class="item-img img-ph" wx:else>{{item.initial}}</view>
+        </view>
+        <view class="item-body">
+          <view class="item-name serif">{{item.name}}<text class="base-tag" wx:if="{{item.isBase}}">锅底</text></view>
+          <view class="item-cal">{{item.calories}} kcal / 份 · 小计 {{item.subtotal}}</view>
+        </view>
+        <view class="stepper">
+          <view class="step-btn minus" data-id="{{item.id}}" bindtap="onMinus">−</view>
+          <text class="step-num serif">{{item.qty}}</text>
+          <view class="step-btn plus" data-id="{{item.id}}" bindtap="onPlus">+</view>
+        </view>
+      </view>
+      <view class="dash items-dash"></view>
+      <view class="items-foot">
+        <text class="items-foot-label">合计约</text>
+        <text class="items-foot-num serif">{{calories}}</text>
+        <text class="items-foot-unit">kcal</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">口味备注</view>
+    <view class="sheet pad">
+      <view class="tape"></view>
+      <view class="chips">
+        <view
+          wx:for="{{quickNotes}}"
+          wx:key="t"
+          class="chip {{index % 2 === 0 ? 'tilt-l' : 'tilt-r'}} {{item.on ? 'chip-on' : ''}}"
+          data-tag="{{item.t}}"
+          bindtap="onPick"
+        >{{item.t}}</view>
+      </view>
+      <view class="dash note-dash"></view>
+      <textarea
+        class="note-input"
+        placeholder="还想说什么？比如「肉切小一点」「米饭少一半」"
+        placeholder-class="note-ph"
+        value="{{note}}"
+        maxlength="80"
+        bindinput="onNote"
+        auto-height="true"
+      ></textarea>
+    </view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">什么时候吃</view>
+    <view class="sheet pad">
+      <view class="time-row" bindtap="onCookNow">
+        <view class="time-radio {{cookNow ? 'on' : ''}}"></view>
+        <view class="time-text">
+          <view class="time-main">现在就做</view>
+          <view class="time-sub">点完大厨就开火</view>
+        </view>
+      </view>
+      <view class="dash time-dash"></view>
+      <view class="time-row" bindtap="onBookTime">
+        <view class="time-radio {{cookNow ? '' : 'on'}}"></view>
+        <view class="time-text">
+          <view class="time-main">预约开饭时间</view>
+          <view class="time-sub">大厨按钟点起锅</view>
+        </view>
+        <picker mode="time" value="{{timeValue}}" bindchange="onTimeChange">
+          <view class="time-pick {{cookNow ? '' : 'active'}} serif">{{timeValue}}</view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">怎么称呼你</view>
+    <view class="sheet pad">
+      <input
+        class="name-input"
+        placeholder="比如：公主殿下、小满、妈妈"
+        placeholder-class="note-ph"
+        value="{{nickname}}"
+        maxlength="10"
+        bindinput="onName"
+      />
+    </view>
+  </view>
+
+  <view class="bottom">
+    <view class="bottom-inner">
+      <view class="sum">
+        <view class="sum-num serif">{{calories}}</view>
+        <view class="sum-label">千卡 · {{count}} 道</view>
+      </view>
+      <view class="btn-primary submit {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">
+        {{submitting ? '递单中…' : '交给大厨'}}
+      </view>
+    </view>
+  </view>
+
+</view>
+
+<view class="state" wx:else>
+  <image class="illus" src="/assets/illus/empty-bowl.png" mode="aspectFit" />
+  <view class="state-title">还没选菜</view>
+  <view class="state-text">菜单里挑几道喜欢的吧</view>
+  <view class="state-btn" bindtap="goHome">回菜单</view>
+</view>
+
+<view class="success" wx:if="{{showSuccess}}">
+  <view class="petal" wx:for="{{petals}}" wx:key="key" style="{{item.style}}"></view>
+  <view class="success-card">
+    <view class="candle">
+      <view class="flame"></view>
+      <view class="wick"></view>
+      <view class="wax"><view class="wax-drip"></view></view>
+    </view>
+    <view class="success-title serif">已经递到大厨手上</view>
+    <view class="success-sub">这就开火，去客厅等着吧</view>
+  </view>
+</view>

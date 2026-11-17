@@ -1,0 +1,75 @@
+<view class="page">
+
+  <view class="head">
+    <view class="head-left">
+      <view class="head-kicker">
+        <text class="kicker-star">✦</text>
+        <text>后台</text>
+      </view>
+      <view class="head-title serif">菜单管理</view>
+      <view class="head-meta">共 {{total}} 道 · 上架 {{onCount}} 道</view>
+    </view>
+    <view class="refresh" bindtap="refresh">刷新</view>
+  </view>
+
+  <view class="tabs">
+    <view
+      wx:for="{{cuisines}}"
+      wx:key="id"
+      class="tab {{item.id === active ? 'on' : ''}}"
+      data-id="{{item.id}}"
+      bindtap="onCuisine"
+    >{{item.name}}</view>
+  </view>
+
+  <view class="state" wx:if="{{loading}}">
+    <view class="state-title">正在读菜单…</view>
+  </view>
+
+  <block wx:elif="{{list.length > 0}}">
+    <view class="row {{item.isOff ? 'row-off' : ''}}" wx:for="{{list}}" wx:key="id">
+      <image class="row-img" wx:if="{{item.img}}" src="{{item.img}}" mode="aspectFill" lazy-load="true" />
+      <view class="row-img img-ph" wx:else>{{item.initial}}</view>
+
+      <view class="row-body">
+        <view class="row-name serif">{{item.name}}</view>
+        <view class="row-meta">{{item.groupName}} · {{item.calories}} kcal · {{item.minutes}} 分</view>
+        <view class="row-tags">
+          <text class="badge {{item.isOff ? 'badge-off' : ''}}">{{item.isOff ? '已下架' : '上架中'}}</text>
+          <text class="badge badge-ghost" wx:if="{{item.isBuiltin}}">内置</text>
+        </view>
+      </view>
+
+      <view class="row-ops">
+        <view
+          class="op op-toggle {{item.isOff ? 'op-on' : 'op-off'}}"
+          data-id="{{item.id}}"
+          data-off="{{item.isOff}}"
+          bindtap="onToggle"
+        >{{item.isOff ? '上架' : '下架'}}</view>
+        <view class="op-line">
+          <view class="op-mini" data-id="{{item.id}}" data-delta="-1" bindtap="onMove">↑</view>
+          <view class="op-mini" data-id="{{item.id}}" data-delta="1" bindtap="onMove">↓</view>
+          <view class="op-mini" data-id="{{item.id}}" bindtap="onEdit">改</view>
+          <view class="op-mini op-del" data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onDelete">删</view>
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <view class="state" wx:else>
+    <view class="state-title">这个菜系还没有菜</view>
+    <view class="state-text">点下面加一道</view>
+  </view>
+
+  <view class="build">
+    <text>最后刷新 {{refreshedAt}}</text>
+    <text class="build-dot">·</text>
+    <text>{{buildTag}}</text>
+  </view>
+
+  <view class="bottom">
+    <view class="btn-primary" bindtap="onAdd">+ 新增菜品</view>
+  </view>
+
+</view>

@@ -1,0 +1,71 @@
+<view class="page" wx:if="{{dish}}">
+
+  <view class="hero-wrap">
+    <image class="hero-img" wx:if="{{dish.img}}" src="{{dish.img}}" mode="aspectFill" />
+    <view class="hero-img img-ph hero-ph" wx:else>{{dish.initial}}</view>
+    <view class="hero-fade"></view>
+    <view class="hero-caption">
+      <view class="hero-kicker">
+        <text class="kicker-star">✦</text>
+        <text>今日为你而做</text>
+      </view>
+      <view class="hero-name serif">{{dish.name}}</view>
+      <view class="hero-desc">{{dish.desc}}</view>
+    </view>
+  </view>
+
+  <view class="body">
+
+    <view class="stats">
+      <view class="stat tilt-l">
+        <view class="stat-num serif">{{dish.calories}}</view>
+        <view class="stat-label">千卡 / 份</view>
+      </view>
+      <view class="stat tilt-r">
+        <view class="stat-num serif">{{dish.minutes}}<text class="stat-unit">分</text></view>
+        <view class="stat-label">大致用时</view>
+      </view>
+      <view class="stat tilt-l">
+        <view class="stat-num serif {{dish.spicy > 0 ? 'hot' : 'cool'}}">{{dish.spicyText}}</view>
+        <view class="stat-label">口味辣度</view>
+      </view>
+    </view>
+
+    <view class="block">
+      <view class="sec-title">这道菜要用到<text class="sec-more">按一份计</text></view>
+      <view class="sheet ing-card">
+        <view class="tape"></view>
+        <view class="ing-row" wx:for="{{dish.ingredients}}" wx:key="name">
+          <text class="ing-name">{{item.name}}</text>
+          <view class="leader"></view>
+          <text class="ing-amount">{{item.amount}}</text>
+        </view>
+      </view>
+      <view class="hint">点两份，买菜清单会自动按双倍计入</view>
+    </view>
+
+    <view class="block">
+      <view class="sec-title">风味</view>
+      <view class="tags">
+        <text class="tag-lg" wx:for="{{dish.tags}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+  </view>
+
+  <view class="bottom-bar">
+    <view class="bottom-inner">
+      <view class="bottom-cart" bindtap="goCart" wx:if="{{cartCount > 0}}">
+        已点 {{cartCount}} 道
+      </view>
+      <view class="btn-primary bottom-btn" bindtap="onAdd">加入点单</view>
+    </view>
+  </view>
+
+</view>
+
+<view class="state" wx:else>
+  <image class="illus" src="/assets/illus/empty-plate.png" mode="aspectFit" />
+  <view class="state-title">没找到这道菜</view>
+  <view class="state-text">回菜单看看吧</view>
+</view>

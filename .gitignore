@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+
+# 备份与临时产物
+_archive/
+tools/preview/*.png
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# AI 生成的原图（每张 1MB 上下，进仓库会把体积撑到 100MB+）
+# 上线用的成品在 images/dish/*.jpg，已在版本库中
+images/dish/*.png
+images/illus/*.png

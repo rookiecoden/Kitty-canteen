@@ -1,0 +1,98 @@
+<view class="page">
+
+  <view class="head">
+    <view class="head-kicker">
+      <text class="kicker-star">✦</text>
+      <text>{{isNew ? '新菜' : '修改'}}</text>
+    </view>
+    <view class="head-title serif">{{isNew ? '加一道菜' : name}}</view>
+  </view>
+
+  <view class="pic" bindtap="onPickImage">
+    <image class="pic-img" wx:if="{{img}}" src="{{img}}" mode="aspectFill" />
+    <view class="pic-empty" wx:else>
+      <view class="pic-plus">+</view>
+      <view class="pic-tip">选张图</view>
+    </view>
+    <view class="pic-badge" wx:if="{{img}}">换一张</view>
+  </view>
+
+  <view class="form">
+    <view class="field">
+      <text class="label">菜名</text>
+      <input class="input" value="{{name}}" data-field="name" bindinput="onInput" placeholder="比如：麻辣牛油锅底" placeholder-class="ph" maxlength="12" />
+    </view>
+
+    <view class="field field-col">
+      <text class="label">菜系</text>
+      <view class="chips">
+        <view
+          wx:for="{{cuisines}}"
+          wx:key="id"
+          class="chip {{item.id === cuisine ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onPickCuisine"
+        >{{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="field field-col">
+      <text class="label">分类</text>
+      <view class="chips">
+        <view
+          wx:for="{{groupOptions}}"
+          wx:key="id"
+          class="chip {{item.id === group ? 'chip-on' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onPickGroup"
+        >{{item.name}}</view>
+      </view>
+    </view>
+
+    <view class="field field-col">
+      <text class="label">辣度</text>
+      <view class="chips">
+        <view
+          wx:for="{{spicyOptions}}"
+          wx:key="v"
+          class="chip {{item.v === spicyIndex ? 'chip-on' : ''}}"
+          data-v="{{item.v}}"
+          bindtap="onPickSpicy"
+        >{{item.n}}</view>
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="label">热量</text>
+      <input class="input" type="number" value="{{calories}}" data-field="calories" bindinput="onInput" placeholder="千卡 / 份" placeholder-class="ph" />
+    </view>
+
+    <view class="field">
+      <text class="label">用时</text>
+      <input class="input" type="number" value="{{minutes}}" data-field="minutes" bindinput="onInput" placeholder="分钟" placeholder-class="ph" />
+    </view>
+
+    <view class="field field-col">
+      <text class="label">一句话介绍</text>
+      <textarea class="area" value="{{desc}}" data-field="desc" bindinput="onInput" placeholder="比如：牛油红亮，麻辣过瘾" placeholder-class="ph" maxlength="30" auto-height="true"></textarea>
+    </view>
+
+    <view class="field field-col">
+      <text class="label">标签</text>
+      <input class="input" value="{{tagsText}}" data-field="tagsText" bindinput="onInput" placeholder="用顿号隔开，比如：招牌、下饭" placeholder-class="ph" />
+    </view>
+
+    <view class="field field-col">
+      <text class="label">食材用量</text>
+      <textarea class="area area-tall" value="{{ingText}}" data-field="ingText" bindinput="onInput" placeholder="一行一样，写成「名称 数量单位」&#10;五花肉 600g&#10;姜 3片" placeholder-class="ph"></textarea>
+      <view class="hint">这个会进买菜清单，写清楚点</view>
+    </view>
+  </view>
+
+  <view class="bottom">
+    <view class="btn-primary {{saving ? 'disabled' : ''}}" bindtap="onSave">{{saving ? '保存中…' : '保存'}}</view>
+  </view>
+
+  <canvas type="2d" id="shrinker" class="shrinker"></canvas>
+
+</view>

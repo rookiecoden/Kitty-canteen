@@ -1,0 +1,1277 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>确认点单</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #efe7e4; display: block; padding: 0; overflow-x: hidden; }
+  view { display: block; }
+  text { display: inline; }
+  img { display: inline-block; object-fit: cover; }
+  input, textarea { display: block; width: 100%; border: none; outline: none; background: transparent;
+    font-family: inherit; resize: none; }
+  .phone { position: relative; width: 375px; margin: 0; min-height: 700px; overflow: hidden; }
+  .navmock { height: 44px; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 600; color: #43333a; background: #fdf7f4; }
+  /* 预览专用：真机里是 fixed 吸底，这里改成常规流，方便静态截图 */
+  .cartbar { position: static !important; margin: 18px 13px 0; }
+  .bottom, .bottom-bar { position: static !important; margin-top: 18px; }
+  .dish, .ticket { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .twinkle { animation: none !important; }
+  /* 成功页静态截图：花瓣停在半空，卡片直接显示 */
+  .petal { animation-play-state: paused !important; }
+  .success, .success-card { animation: none !important; }
+/* ==========================================
+   Cat的小食堂 · 设计系统
+   奶油粉底 / 玫瑰金线 / 衬线标题 / 便签质感
+   ========================================== */
+
+.phone {
+  background-color: #fdf7f4;
+  background-image:
+    radial-gradient(circle at 8% 2%, #fbeaee 0%, rgba(251, 234, 238, 0) 42%),
+    radial-gradient(circle at 92% 0%, #f4ecfa 0%, rgba(244, 236, 250, 0) 38%);
+  background-repeat: no-repeat;
+  color: #4a3a3e;
+  font-size: 14px;
+  line-height: 1.55;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+view, text, img, input, textarea {
+  box-sizing: border-box;
+}
+
+.serif {
+  font-family: "Songti SC", "STSong", "Times New Roman", serif;
+}
+
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding-bottom: 20px;
+  overflow-x: hidden;
+}
+
+/* ---------- 纸片卡片 ---------- */
+.sheet {
+  position: relative;
+  background: #fffdfb;
+  border-radius: 15px;
+  box-shadow:
+    0 5px 15px rgba(186, 130, 120, 0.09),
+    inset 0 0 0 1px #f7ece7;
+}
+
+/* 和纸胶带（贴在做便签的卡片顶部） */
+.tape {
+  position: absolute;
+  top: -5.50px;
+  left: 50%;
+  width: 54px;
+  height: 11px;
+  margin-left: -27px;
+  background: rgba(233, 168, 178, 0.32);
+  border-radius: 1.50px;
+  transform: rotate(-2.4deg);
+  box-shadow: 0 0.50px 2px rgba(186, 130, 120, 0.1);
+}
+
+/* ---------- 顶部 hero ---------- */
+.hero {
+  position: relative;
+  padding: 26px 18px 20px;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -90px;
+  right: -60px;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242, 198, 206, 0.5) 0%, rgba(242, 198, 206, 0) 68%);
+}
+
+.hero-top {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  letter-spacing: 2.50px;
+  color: #b25a6c;
+  margin-bottom: 7px;
+}
+
+.kicker-star {
+  color: #c9a063;
+  font-size: 10px;
+  margin: 0 5px;
+}
+
+.title {
+  font-size: 30px;
+  line-height: 1.18;
+  color: #43333a;
+  letter-spacing: 1.50px;
+  font-weight: 600;
+}
+
+.title-accent {
+  color: #b25a6c;
+  font-style: italic;
+}
+
+.title-underline {
+  display: block;
+  width: 84px;
+  height: 5px;
+  margin-top: 7px;
+  border-radius: 499.50px;
+  background: linear-gradient(90deg, #e9a8b2, rgba(233, 168, 178, 0));
+}
+
+.sub {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #a08a90;
+  letter-spacing: 0.50px;
+}
+
+.hero-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 13px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.pill {
+  padding: 6px 12px;
+  margin-left: 6px;
+  font-size: 11px;
+  color: #b25a6c;
+  background: #fffdfb;
+  border-radius: 499.50px;
+  letter-spacing: 0.50px;
+  box-shadow:
+    0 3px 8px rgba(186, 130, 120, 0.12),
+    inset 0 0 0 1px #f6e5e2;
+}
+
+.pill.ghost {
+  color: #8d7a80;
+}
+
+.pill:active {
+  transform: scale(0.96);
+}
+
+/* ---------- 分类便签 ---------- */
+.cats {
+  white-space: nowrap;
+  padding: 15px 10px 3px;
+}
+
+.cat {
+  display: inline-block;
+  padding: 7.50px 13px;
+  margin: 0 5px 7px 0;
+  font-size: 13px;
+  color: #8d7a80;
+  background: #fffdfb;
+  border-radius: 9px 9px 9px 3px;
+  letter-spacing: 0.50px;
+  box-shadow: 0 4px 9px rgba(186, 130, 120, 0.1);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.cat.tilt-l {
+  transform: rotate(-1.6deg);
+}
+
+.cat.tilt-r {
+  transform: rotate(1.4deg);
+}
+
+.cat.on {
+  background: linear-gradient(135deg, #e9a8b2, #cf6f81);
+  color: #ffffff;
+  font-weight: 600;
+  transform: rotate(0deg) translateY(-2px);
+  box-shadow: 0 6px 12px rgba(207, 111, 129, 0.3);
+}
+
+/* ---------- 菜品便签 ---------- */
+.list {
+  padding: 8px 12px 20px;
+}
+
+.dish {
+  position: relative;
+  display: flex;
+  background: #fffdfb;
+  border-radius: 15px;
+  padding: 9px;
+  margin-bottom: 13px;
+  box-shadow:
+    0 6px 15px rgba(186, 130, 120, 0.1),
+    inset 0 0 0 1px #f8ede8;
+  animation: riseIn 0.5s ease both;
+}
+
+.dish:active {
+  transform: scale(0.994);
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(9px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.frame {
+  position: relative;
+  width: 107px;
+  height: 107px;
+  padding: 4px;
+  background: #ffffff;
+  border-radius: 13px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 9px rgba(186, 130, 120, 0.16);
+}
+
+.dish-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: #f6ece8;
+}
+
+.dish-body {
+  flex: 1;
+  min-width: 0;
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dish-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.dish-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #43333a;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-chip {
+  flex-shrink: 0;
+  margin-left: 6px;
+  padding: 3px 7px;
+  font-size: 10px;
+  color: #9a6b24;
+  background: linear-gradient(135deg, #fdf2dd, #f6e5c6);
+  border-radius: 5px 5px 5px 1px;
+  letter-spacing: 0.25px;
+  box-shadow: inset 0 0 0 0.50px #f2dcb4;
+  white-space: nowrap;
+}
+
+.dish-desc {
+  margin-top: 5px;
+  font-size: 11.50px;
+  color: #9c858c;
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.dish-tags {
+  margin-top: 6px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  color: #b25a6c;
+  background: #fbebee;
+  border-radius: 4px;
+  padding: 1.50px 7px;
+  margin-right: 5px;
+  letter-spacing: 0.25px;
+}
+
+.dish-foot {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 7px;
+}
+
+.meta {
+  font-size: 11px;
+  color: #ab979c;
+}
+
+.dot {
+  color: #e0cdc9;
+  margin: 0 5px;
+  font-size: 10px;
+}
+
+.spicy {
+  color: #cf6f81;
+  font-size: 11px;
+}
+
+.spicy-empty {
+  color: #cbbbc0;
+  font-size: 11px;
+}
+
+.add {
+  position: relative;
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #e8889a, #b8566a);
+  color: #ffffff;
+  font-size: 19px;
+  line-height: 30px;
+  text-align: center;
+  font-weight: 500;
+  box-shadow:
+    0 5px 10px rgba(184, 86, 106, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.add:active {
+  transform: scale(0.9);
+}
+
+/* ---------- 底部点单条 ---------- */
+.cartbar {
+  position: fixed;
+  left: 13px;
+  right: 13px;
+  bottom: 13px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  padding: 0 9px 0 15px;
+  border-radius: 499.50px;
+  background: linear-gradient(135deg, #4d3a3f, #3a2c31);
+  box-shadow: 0 9px 19px rgba(58, 44, 49, 0.34);
+  z-index: 20;
+}
+
+.cartbar-ribbon {
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #f0b3bd, #cf6f81);
+  color: #fff;
+  font-size: 15px;
+  line-height: 31px;
+  text-align: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.cartbar-info {
+  flex: 1;
+  color: #f6e9e6;
+}
+
+.cartbar-count {
+  font-size: 13.50px;
+  letter-spacing: 0.50px;
+}
+
+.cartbar-cal {
+  font-size: 10px;
+  color: #c3aeb0;
+  margin-top: 1px;
+}
+
+.cartbar-btn {
+  padding: 10px 17px;
+  border-radius: 499.50px;
+  font-size: 13.50px;
+  letter-spacing: 1px;
+  color: #4d3a3f;
+  background: linear-gradient(135deg, #f6dfc4, #e3bf94);
+  box-shadow: 0 4px 9px rgba(0, 0, 0, 0.18);
+}
+
+.cartbar-btn:active {
+  opacity: 0.9;
+}
+
+/* ---------- 按钮 ---------- */
+.btn-primary {
+  height: 49px;
+  line-height: 49px;
+  text-align: center;
+  font-size: 15px;
+  letter-spacing: 1.50px;
+  color: #ffffff;
+  border-radius: 499.50px;
+  background: linear-gradient(135deg, #e29aa6, #b95d70);
+  box-shadow:
+    0 7px 15px rgba(185, 93, 112, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn-primary:active {
+  opacity: 0.92;
+}
+
+.btn-primary.disabled {
+  background: #eee1e0;
+  color: #b7a5a8;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  height: 45px;
+  line-height: 43px;
+  text-align: center;
+  font-size: 14px;
+  color: #8d7a80;
+  border-radius: 499.50px;
+  background: #fffdfb;
+  box-shadow: inset 0 0 0 1px #f0ddd9;
+}
+
+/* ---------- 分区标题 ---------- */
+.sec-title {
+  display: flex;
+  align-items: center;
+  font-size: 14.50px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #43333a;
+  margin-bottom: 11px;
+}
+
+.sec-title::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #c9a063;
+  margin-right: 7px;
+}
+
+.sec-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sec-more {
+  flex-shrink: 0;
+  margin-left: 8px;
+  font-size: 11px;
+  color: #b25a6c;
+  font-weight: 400;
+  letter-spacing: 0.50px;
+  white-space: nowrap;
+}
+
+/* ---------- 状态页 ---------- */
+.state {
+  padding: 65px 30px;
+  text-align: center;
+}
+
+.state-emoji {
+  font-size: 38px;
+  margin-bottom: 12px;
+  opacity: 0.9;
+}
+
+.state-text {
+  font-size: 13px;
+  color: #a08a90;
+  line-height: 1.8;
+  letter-spacing: 0.50px;
+}
+
+.state-btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 26px;
+  font-size: 13.50px;
+  letter-spacing: 1px;
+  color: #b25a6c;
+  background: #fffdfb;
+  border-radius: 499.50px;
+  box-shadow:
+    0 5px 12px rgba(186, 130, 120, 0.14),
+    inset 0 0 0 1px #f6e5e2;
+}
+
+/* ---------- 虚线分隔 ---------- */
+.dash {
+  height: 1px;
+  background-image: linear-gradient(90deg, #ead6d1 0, #ead6d1 60%, transparent 60%);
+  background-size: 9px 1px;
+  background-repeat: repeat-x;
+}
+
+/* ---------- 小闪光 ---------- */
+.twinkle {
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+/* ---------- 无图占位 ---------- */
+.img-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(150deg, #f8e6e9, #eccad1);
+  color: #b25a6c;
+  font-family: "Songti SC", "STSong", serif;
+  font-weight: 600;
+}
+
+/* ---------- 轻微倾斜（手账感） ---------- */
+.tilt-l {
+  transform: rotate(-1.6deg);
+}
+
+.tilt-r {
+  transform: rotate(1.4deg);
+}
+
+/* ---------- 绶带：今日 · 农历 ---------- */
+.ribbon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 18px;
+  background: linear-gradient(135deg, #f9e8d1, #e5c197);
+  color: #7a5326;
+  font-size: 10.50px;
+  letter-spacing: 1.50px;
+  clip-path: polygon(0 0, 100% 0, 96% 50%, 100% 100%, 0 100%, 4% 50%);
+}
+
+/* ---------- 皇冠 ---------- */
+.crown {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 18px;
+  height: 14px;
+  margin: 0 6px;
+}
+
+.crown-p {
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 8px solid #c9a063;
+}
+
+.crown-p.mid {
+  border-bottom-width: 11px;
+}
+
+.crown-base {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: #c9a063;
+  border-radius: 1px;
+}
+
+/* ---------- 空状态插画 ---------- */
+.illus {
+  display: block;
+  width: 150px;
+  height: 138px;
+  margin: 0 auto 9px;
+}
+
+.state-title {
+  font-size: 13.50px;
+  color: #8d7a80;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+}
+
+.page {
+  padding: 0 12px 115px;
+}
+
+/* ---------- 顶部引言 ---------- */
+.intro {
+  padding: 18px 4px 4px;
+}
+
+.intro-kicker {
+  font-size: 10.50px;
+  letter-spacing: 2px;
+  color: #b25a6c;
+  margin-bottom: 5px;
+}
+
+.kicker-star {
+  color: #c9a063;
+  margin-right: 5px;
+}
+
+.intro-title {
+  font-size: 26px;
+  color: #43333a;
+  letter-spacing: 1.50px;
+  font-weight: 600;
+}
+
+.intro-sub {
+  font-size: 11.50px;
+  color: #a08a90;
+  margin-top: 5px;
+  letter-spacing: 0.50px;
+}
+
+.block {
+  margin-top: 21px;
+}
+
+/* 火锅没锅底的提醒 */
+.need-base {
+  display: flex;
+  align-items: center;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #fdeff1;
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 1px #f6d7dd;
+}
+
+.need-mark {
+  width: 17px;
+  height: 17px;
+  line-height: 17px;
+  text-align: center;
+  border-radius: 50%;
+  background: #c96a7d;
+  color: #fff;
+  font-size: 11px;
+  margin-right: 7px;
+}
+
+.need-text {
+  flex: 1;
+  font-size: 12px;
+  color: #b25a6c;
+  letter-spacing: 0.50px;
+}
+
+.need-link {
+  font-size: 11.50px;
+  color: #b25a6c;
+  font-weight: 600;
+}
+
+.base-tag {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 5px;
+  font-size: 9px;
+  border-radius: 3px;
+  color: #fff;
+  background: linear-gradient(135deg, #dd8e9c, #b95d70);
+  vertical-align: middle;
+}
+
+.pad {
+  padding: 16px 15px;
+}
+
+/* ---------- 菜品清单 ---------- */
+.items {
+  padding: 5px 13px 3px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.item-frame {
+  width: 56px;
+  height: 56px;
+  padding: 2.50px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 7px rgba(186, 130, 120, 0.14);
+  flex-shrink: 0;
+}
+
+.item-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background: #f6ece8;
+}
+
+.item-body {
+  flex: 1;
+  padding-left: 10px;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #43333a;
+  letter-spacing: 0.50px;
+}
+
+.item-cal {
+  font-size: 10.50px;
+  color: #ab979c;
+  margin-top: 3px;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+}
+
+.step-btn {
+  width: 27px;
+  height: 27px;
+  line-height: 25px;
+  text-align: center;
+  border-radius: 50%;
+  font-size: 15px;
+}
+
+.step-btn.plus {
+  background: linear-gradient(150deg, #f0b3bd, #cf6f81);
+  color: #fff;
+  box-shadow: 0 3px 7px rgba(207, 111, 129, 0.3);
+}
+
+.step-btn.minus {
+  background: #fbebee;
+  color: #b25a6c;
+}
+
+.step-num {
+  min-width: 29px;
+  text-align: center;
+  font-size: 16px;
+  color: #43333a;
+}
+
+.items-dash {
+  margin: 3px 0 0;
+}
+
+.items-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  padding: 11px 2px;
+}
+
+.items-foot-label {
+  font-size: 11px;
+  color: #ab979c;
+  margin-right: 6px;
+}
+
+.items-foot-num {
+  font-size: 20px;
+  color: #b25a6c;
+  font-weight: 600;
+}
+
+.items-foot-unit {
+  font-size: 10.50px;
+  color: #ab979c;
+  margin-left: 4px;
+}
+
+/* ---------- 口味 ---------- */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.chip {
+  font-size: 12px;
+  color: #8d7a80;
+  background: #fdf7f5;
+  border-radius: 7px 7px 7px 2px;
+  padding: 7px 13px;
+  margin: 0 8px 8px 0;
+  letter-spacing: 0.50px;
+  box-shadow: inset 0 0 0 1px #f4e6e2;
+}
+
+.chip.chip-on {
+  background: linear-gradient(135deg, #f2c6ce, #de8f9d);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 4px 9px rgba(207, 111, 129, 0.24);
+  transform: rotate(0deg);
+}
+
+.note-dash {
+  margin: 4px 0 10px;
+}
+
+.note-input {
+  width: 100%;
+  min-height: 46px;
+  font-size: 12.50px;
+  color: #4a3a3e;
+  line-height: 1.7;
+  letter-spacing: 0.25px;
+}
+
+.note-ph {
+  color: #c5b3b6;
+  font-size: 12px;
+}
+
+.name-input {
+  font-size: 14px;
+  color: #43333a;
+  height: 28px;
+  letter-spacing: 0.50px;
+}
+
+/* ---------- 时间 ---------- */
+.time-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.time-radio {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 1.50px solid #e6d2cd;
+  margin-right: 11px;
+  flex-shrink: 0;
+}
+
+.time-radio.on {
+  border-color: #cf6f81;
+  background: #cf6f81;
+  box-shadow: inset 0 0 0 3.50px #fffdfb;
+}
+
+.time-text {
+  flex: 1;
+}
+
+.time-main {
+  font-size: 14px;
+  color: #43333a;
+  letter-spacing: 0.50px;
+}
+
+.time-sub {
+  font-size: 10.50px;
+  color: #ab979c;
+  margin-top: 2px;
+}
+
+.time-pick {
+  font-size: 16px;
+  color: #ab979c;
+  background: #fdf7f5;
+  border-radius: 6px;
+  padding: 5px 12px;
+  letter-spacing: 0.50px;
+}
+
+.time-pick.active {
+  color: #a8792f;
+  background: linear-gradient(135deg, #fdf4e3, #f7ead2);
+  font-weight: 600;
+}
+
+.time-dash {
+  margin: 2px 0;
+}
+
+/* ---------- 底部 ---------- */
+.bottom {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 9px 13px calc(9px + env(safe-area-inset-bottom));
+  background: rgba(253, 247, 244, 0.97);
+  box-shadow: 0 -5px 14px rgba(186, 130, 120, 0.1);
+}
+
+.bottom-inner {
+  display: flex;
+  align-items: center;
+}
+
+.sum {
+  width: 95px;
+}
+
+.sum-num {
+  font-size: 22px;
+  color: #b25a6c;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.sum-label {
+  font-size: 10px;
+  color: #ab979c;
+  margin-top: 2px;
+  letter-spacing: 0.50px;
+}
+
+.submit {
+  flex: 1;
+}
+
+/* ---------- 下单成功：烛光 + 花瓣 ---------- */
+.success {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: rgba(46, 32, 36, 0.42);
+  animation: fadeIn 0.22s ease both;
+}
+
+.success-card {
+  position: relative;
+  z-index: 2;
+  width: 260px;
+  padding: 33px 20px 26px;
+  text-align: center;
+  background: #fffdfb;
+  border-radius: 17px;
+  box-shadow: 0 14px 32px rgba(46, 32, 36, 0.28);
+  animation: pop 0.5s cubic-bezier(0.2, 1.3, 0.42, 1) both;
+}
+
+.success-title {
+  font-size: 19px;
+  color: #43333a;
+  letter-spacing: 1.50px;
+  font-weight: 600;
+}
+
+.success-sub {
+  margin-top: 7px;
+  font-size: 11.50px;
+  color: #a08a90;
+  letter-spacing: 0.50px;
+}
+
+/* 蜡烛 */
+.candle {
+  position: relative;
+  width: 17px;
+  height: 52px;
+  margin: 0 auto 17px;
+}
+
+.candle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  margin-left: -32px;
+  bottom: 22px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 186, 110, 0.5), rgba(255, 186, 110, 0) 66%);
+  animation: glow 1.8s ease-in-out infinite;
+}
+
+.wax {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36px;
+  border-radius: 4px 4px 3px 3px;
+  background: linear-gradient(180deg, #fff8ef, #f2dcc4);
+  box-shadow: inset -3px 0 5px rgba(190, 150, 120, 0.15);
+}
+
+.wax-drip {
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  margin-left: -4.50px;
+  width: 9px;
+  height: 12px;
+  background: #fff8ef;
+  border-radius: 0 0 5px 5px;
+}
+
+.wick {
+  position: absolute;
+  left: 50%;
+  margin-left: -1px;
+  bottom: 35px;
+  width: 2px;
+  height: 6px;
+  background: #8a6a52;
+  border-radius: 1px;
+}
+
+.flame {
+  position: absolute;
+  left: 50%;
+  margin-left: -5.50px;
+  bottom: 40px;
+  width: 11px;
+  height: 17px;
+  border-radius: 50% 50% 46% 46%;
+  background: radial-gradient(circle at 50% 72%, #fff8c8, #ffb545 58%, #e2622f 100%);
+  transform-origin: 50% 90%;
+  animation: flicker 1.5s ease-in-out infinite;
+}
+
+/* 花瓣 */
+.petal {
+  position: absolute;
+  top: -30px;
+  border-radius: 62% 4% 62% 4%;
+  background: linear-gradient(160deg, #fbd6de, #ec9cae);
+  opacity: 0;
+  animation-name: petalFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.86) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes flicker {
+  0%, 100% { transform: scale(1) rotate(-2deg); opacity: 0.95; }
+  35% { transform: scale(1.12, 0.94) rotate(2deg); opacity: 1; }
+  70% { transform: scale(0.94, 1.08) rotate(-1deg); opacity: 0.9; }
+}
+
+@keyframes glow {
+  0%, 100% { opacity: 0.55; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+@keyframes petalFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -20px, 0) rotate(0deg);
+  }
+  10% {
+    opacity: 0.95;
+  }
+  55% {
+    opacity: 0.95;
+    transform: translate3d(14px, 360px, 0) rotate(200deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-9px, 780px, 0) rotate(400deg);
+  }
+}
+</style></head>
+<body><div class="phone">
+  <div class="navmock">确认点单</div>
+  
+<view class="page">
+  <view class="intro">
+    <view class="intro-kicker"><text class="kicker-star">✦</text><text>确认菜单</text></view>
+    <view class="intro-title serif">就这么定啦</view>
+    <view class="intro-sub">写清口味和时间，大厨照着做</view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">你点的菜<text class="sec-more">共 3 道</text></view>
+    <view class="sheet items">
+      <view class="item">
+        <view class="item-frame"><img class="item-img" src="../../images/dish/hotpot-base-mala.jpg" /></view>
+        <view class="item-body">
+          <view class="item-name serif">麻辣牛油锅底<text class="base-tag">锅底</text></view>
+          <view class="item-cal">900 kcal / 份 · 小计 900</view>
+        </view>
+        <view class="stepper">
+          <view class="step-btn minus">−</view>
+          <text class="step-num serif">1</text>
+          <view class="step-btn plus">+</view>
+        </view>
+      </view>
+      <view class="item">
+        <view class="item-frame"><img class="item-img" src="../../images/dish/hong-shao-rou.jpg" /></view>
+        <view class="item-body">
+          <view class="item-name serif">红烧肉</view>
+          <view class="item-cal">480 kcal / 份 · 小计 480</view>
+        </view>
+        <view class="stepper">
+          <view class="step-btn minus">−</view>
+          <text class="step-num serif">1</text>
+          <view class="step-btn plus">+</view>
+        </view>
+      </view>
+      <view class="dash items-dash"></view>
+      <view class="items-foot">
+        <text class="items-foot-label">合计约</text>
+        <text class="items-foot-num serif">1880</text>
+        <text class="items-foot-unit">kcal</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">口味备注</view>
+    <view class="sheet pad">
+      <view class="tape"></view>
+      <view class="chips">
+        <view class="chip tilt-l chip-on">少辣</view>
+        <view class="chip tilt-r">不辣</view>
+        <view class="chip tilt-l">少油少盐</view>
+        <view class="chip tilt-r chip-on">多加饭</view>
+        <view class="chip tilt-l">不要香菜</view>
+      </view>
+      <view class="dash note-dash"></view>
+      <view class="note-input" style="color:#c5b3b6">还想说什么？比如「肉切小一点」「米饭少一半」</view>
+    </view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">什么时候吃</view>
+    <view class="sheet pad">
+      <view class="time-row">
+        <view class="time-radio"></view>
+        <view class="time-text">
+          <view class="time-main">现在就做</view>
+          <view class="time-sub">点完大厨就开火</view>
+        </view>
+      </view>
+      <view class="dash time-dash"></view>
+      <view class="time-row">
+        <view class="time-radio on"></view>
+        <view class="time-text">
+          <view class="time-main">预约开饭时间</view>
+          <view class="time-sub">大厨按钟点起锅</view>
+        </view>
+        <view class="time-pick active serif">18:30</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="block">
+    <view class="sec-title">怎么称呼你</view>
+    <view class="sheet pad">
+      <view class="name-input">公主殿下</view>
+    </view>
+  </view>
+
+  <view class="bottom">
+    <view class="bottom-inner">
+      <view class="sum">
+        <view class="sum-num serif">920</view>
+        <view class="sum-label">千卡 · 3 道</view>
+      </view>
+      <view class="btn-primary submit">交给大厨</view>
+    </view>
+  </view>
+</view>
+</div>
+<script>
+window.addEventListener('load', function () {
+  var w = document.documentElement.clientWidth;
+  var bad = [];
+  var all = document.querySelectorAll('*');
+  for (var i = 0; i < all.length; i++) {
+    var r = all[i].getBoundingClientRect();
+    if (r.width > 0 && r.right > w + 0.5) {
+      bad.push((all[i].className || all[i].tagName) + ' -> ' + Math.round(r.right));
+    }
+  }
+  var pre = document.createElement('pre');
+  pre.style.cssText = 'position:fixed;left:0;top:0;z-index:99999;background:#fff;color:#c00;' +
+    'font:11px monospace;padding:4px;white-space:pre-wrap;max-width:100%';
+  pre.textContent = 'viewport=' + w + ' overflow=' + bad.length + '\n' + bad.slice(0, 6).join('\n');
+  document.body.appendChild(pre);
+});
+</script></body></html>

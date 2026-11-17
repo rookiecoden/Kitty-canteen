@@ -1,0 +1,50 @@
+{
+  "description": "口米子的专属小食堂",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": ".workbuddy"
+      },
+      {
+        "type": "folder",
+        "value": "tools"
+      },
+      {
+        "type": "folder",
+        "value": "node_modules"
+      },
+      {
+        "type": "regexp",
+        "value": "^images/dish/.*\\.png$"
+      },
+      {
+        "type": "regexp",
+        "value": "^images/illus/.*\\.png$"
+      },
+      {
+        "type": "regexp",
+        "value": "^images/dish/(hotpot-duck-intestine|hotpot-throat|bbq-chicken-heart|bbq-mushroom|bbq-enoki-foil)\\.jpg$"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "bundle": false,
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": true,
+    "packNpmManually": true,
+    "packNpmRelationList": [
+      {
+        "packageJsonPath": "./package.json",
+        "miniprogramNpmDistDir": "./"
+      }
+    ]
+  },
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "family-order",
+  "miniprogramRoot": "./"
+}

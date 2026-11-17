@@ -1,0 +1,120 @@
+<view class="gate" wx:if="{{!unlocked}}">
+  <view class="gate-card sheet">
+    <view class="tape"></view>
+    <view class="gate-emoji">👩‍🍳</view>
+    <view class="gate-title serif">厨房重地</view>
+    <view class="gate-line"></view>
+    <view class="gate-sub">口令对了才放你进</view>
+    <input
+      class="pin-input serif"
+      type="number"
+      maxlength="6"
+      password="{{true}}"
+      value="{{pinInput}}"
+      bindinput="onPin"
+      placeholder="口令"
+      placeholder-class="pin-ph"
+    />
+    <view class="btn-primary gate-btn" bindtap="onUnlock">进厨房</view>
+    <view class="gate-err" wx:if="{{pinError}}">{{pinError}}</view>
+  </view>
+</view>
+
+<view class="page" wx:else>
+
+  <view class="head">
+    <view class="head-left">
+      <view class="head-kicker">
+        <text class="kicker-star">✦</text>
+        <text>大厨的工作台</text>
+      </view>
+      <view class="head-title serif">今天的单子</view>
+      <view class="head-meta">{{orders.length}} 单 · {{totalDishes}} 道菜</view>
+    </view>
+    <view class="head-right">
+      <view class="pending" wx:if="{{pendingCount > 0}}">{{pendingCount}} 单待接</view>
+      <view class="lock" bindtap="goMenuAdmin">菜单</view>
+      <view class="lock" bindtap="lock">锁上</view>
+    </view>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{tab === 'orders' ? 'on' : ''}}" data-tab="orders" bindtap="switchTab">点单</view>
+    <view class="tab {{tab === 'shop' ? 'on' : ''}}" data-tab="shop" bindtap="switchTab">买菜清单</view>
+  </view>
+
+  <view class="state" wx:if="{{loading}}">
+    <view class="state-emoji">🍳</view>
+    <view class="state-text">正在看今天的单子…</view>
+  </view>
+
+  <view class="state" wx:elif="{{failed}}">
+    <view class="state-emoji">📡</view>
+    <view class="state-text">没连上，检查网络</view>
+    <view class="state-btn" bindtap="refresh">重新加载</view>
+  </view>
+
+  <block wx:elif="{{tab === 'orders'}}">
+    <block wx:if="{{orders.length > 0}}">
+      <view class="order" wx:for="{{orders}}" wx:key="id">
+        <view class="order-head">
+          <view class="who-wrap">
+            <text class="who serif">{{item.who}}</text>
+            <text class="when">{{item.createdText}}</text>
+          </view>
+          <view class="stamp {{item.status}}">{{item.statusText}}</view>
+        </view>
+
+        <view class="dash"></view>
+
+        <view class="lines">
+          <view class="line" wx:for="{{item.lines}}" wx:for-item="line" wx:key="*this">
+            <text class="line-star">✦</text>
+            <text class="line-text">{{line}}</text>
+          </view>
+        </view>
+
+        <view class="note" wx:if="{{item.note}}">「{{item.note}}」</view>
+
+        <view class="order-foot">
+          <view class="meal">{{item.mealText}} · 约 {{item.calories}} kcal</view>
+          <view
+            class="act {{item.status === 'served' ? 'done' : ''}}"
+            data-id="{{item.id}}"
+            data-next="{{item.nextStatus}}"
+            bindtap="advance"
+          >{{item.actionLabel}}</view>
+        </view>
+      </view>
+    </block>
+    <view class="state" wx:else>
+      <image class="illus" src="/assets/illus/empty-plate.png" mode="aspectFit" />
+      <view class="state-title">今天还没有人点菜</view>
+      <view class="state-text">先歇会儿，喝杯茶</view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <block wx:if="{{shop.length > 0}}">
+      <view class="shop-head">
+        <view class="sec-title no-mb">照着买就行</view>
+        <view class="copy" bindtap="copyShop">复制清单</view>
+      </view>
+      <view class="sheet shop">
+        <view class="tape"></view>
+        <view class="shop-row" wx:for="{{shop}}" wx:key="name">
+          <text class="shop-name">{{item.name}}</text>
+          <view class="leader"></view>
+          <text class="shop-amt serif">{{item.amount}}</text>
+        </view>
+      </view>
+      <view class="shop-tip">已按今天所有订单合并去重</view>
+    </block>
+    <view class="state" wx:else>
+      <image class="illus" src="/assets/illus/empty-basket.png" mode="aspectFit" />
+      <view class="state-title">还没有要买的</view>
+      <view class="state-text">等家人点菜</view>
+    </view>
+  </block>
+
+</view>

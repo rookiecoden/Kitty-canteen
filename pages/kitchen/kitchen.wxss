@@ -1,0 +1,377 @@
+/* ---------- 口令门 ---------- */
+.gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 44rpx;
+}
+
+.gate-card {
+  width: 100%;
+  padding: 62rpx 44rpx 52rpx;
+  text-align: center;
+}
+
+.gate-emoji {
+  font-size: 78rpx;
+  margin-bottom: 18rpx;
+}
+
+.gate-title {
+  font-size: 44rpx;
+  font-weight: 600;
+  color: #43333a;
+  letter-spacing: 4rpx;
+}
+
+.gate-line {
+  width: 96rpx;
+  height: 4rpx;
+  margin: 18rpx auto 0;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, rgba(233, 168, 178, 0), #e9a8b2, rgba(233, 168, 178, 0));
+}
+
+.gate-sub {
+  font-size: 23rpx;
+  color: #a08a90;
+  margin-top: 18rpx;
+  letter-spacing: 1rpx;
+}
+
+.pin-input {
+  margin: 42rpx 0 30rpx;
+  height: 98rpx;
+  background: #fdf7f5;
+  border-radius: 20rpx;
+  text-align: center;
+  font-size: 40rpx;
+  letter-spacing: 14rpx;
+  color: #43333a;
+  box-shadow: inset 0 0 0 2rpx #f4e6e2;
+}
+
+.pin-ph {
+  color: #cbb9bd;
+  letter-spacing: 2rpx;
+  font-size: 25rpx;
+}
+
+.gate-btn {
+  width: 100%;
+}
+
+.gate-err {
+  margin-top: 22rpx;
+  font-size: 23rpx;
+  color: #cf6f81;
+  letter-spacing: 1rpx;
+}
+
+/* ---------- 工作台 ---------- */
+.page {
+  padding: 0 24rpx 70rpx;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 40rpx 8rpx 26rpx;
+}
+
+.head-kicker {
+  font-size: 21rpx;
+  letter-spacing: 4rpx;
+  color: #b25a6c;
+  margin-bottom: 8rpx;
+}
+
+.head-left {
+  flex: 1;
+}
+
+.who-wrap {
+  display: flex;
+  align-items: baseline;
+}
+
+.kicker-star {
+  color: #c9a063;
+  margin-right: 10rpx;
+}
+
+.head-title {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #43333a;
+  letter-spacing: 3rpx;
+}
+
+.head-meta {
+  font-size: 22rpx;
+  color: #ab979c;
+  margin-top: 8rpx;
+  letter-spacing: 1rpx;
+}
+
+.head-right {
+  display: flex;
+  align-items: center;
+  padding-top: 46rpx;
+}
+
+.pending {
+  font-size: 21rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #e29aa6, #b95d70);
+  border-radius: 999rpx;
+  padding: 9rpx 20rpx;
+  margin-right: 12rpx;
+  letter-spacing: 1rpx;
+  box-shadow: 0 8rpx 16rpx rgba(185, 93, 112, 0.24);
+}
+
+.lock {
+  font-size: 21rpx;
+  color: #8d7a80;
+  background: #fffdfb;
+  border-radius: 999rpx;
+  padding: 9rpx 20rpx;
+  letter-spacing: 1rpx;
+  box-shadow: inset 0 0 0 2rpx #f4e6e2;
+}
+
+/* ---------- 标签页 ---------- */
+.tabs {
+  display: flex;
+  padding: 6rpx;
+  margin-bottom: 26rpx;
+  background: #f7ece9;
+  border-radius: 999rpx;
+}
+
+.tab {
+  flex: 1;
+  padding: 16rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: #9c858c;
+  border-radius: 999rpx;
+  letter-spacing: 2rpx;
+}
+
+.tab.on {
+  background: #fffdfb;
+  color: #b25a6c;
+  font-weight: 600;
+  box-shadow: 0 6rpx 16rpx rgba(186, 130, 120, 0.14);
+}
+
+/* ---------- 订单便签 ---------- */
+.order {
+  position: relative;
+  padding: 26rpx 28rpx 24rpx;
+  margin-bottom: 24rpx;
+  background: #fffdfb;
+  border-radius: 28rpx;
+  box-shadow:
+    0 12rpx 30rpx rgba(186, 130, 120, 0.1),
+    inset 0 0 0 2rpx #f8ece8;
+}
+
+.order-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.who {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #43333a;
+  letter-spacing: 2rpx;
+}
+
+.when {
+  font-size: 21rpx;
+  color: #ab979c;
+  margin-left: 12rpx;
+}
+
+.stamp {
+  flex-shrink: 0;
+  padding: 8rpx 20rpx;
+  font-size: 21rpx;
+  letter-spacing: 1.5rpx;
+  border-radius: 999rpx;
+}
+
+.stamp.pending {
+  color: #a8792f;
+  background: linear-gradient(135deg, #fdf4e3, #f7ead2);
+  box-shadow: inset 0 0 0 2rpx #f0dbb5;
+}
+
+.stamp.cooking {
+  color: #fff;
+  background: linear-gradient(135deg, #e29aa6, #b95d70);
+}
+
+.stamp.served {
+  color: #5c7a5e;
+  background: linear-gradient(135deg, #eef3ec, #dfe9dd);
+  box-shadow: inset 0 0 0 2rpx #d3e0d0;
+}
+
+.dash {
+  height: 2rpx;
+  margin: 20rpx 0 14rpx;
+  background-image: linear-gradient(90deg, #ead6d1 0, #ead6d1 55%, transparent 55%);
+  background-size: 16rpx 2rpx;
+  background-repeat: repeat-x;
+}
+
+.lines {
+  padding-bottom: 4rpx;
+}
+
+.line {
+  display: flex;
+  align-items: baseline;
+  padding: 7rpx 0;
+}
+
+.line-star {
+  font-size: 16rpx;
+  color: #e0bfa4;
+  margin-right: 14rpx;
+}
+
+.line-text {
+  font-size: 28rpx;
+  color: #4a3a3e;
+  letter-spacing: 1rpx;
+}
+
+.note {
+  margin-top: 16rpx;
+  padding: 14rpx 20rpx;
+  font-size: 23rpx;
+  line-height: 1.6;
+  color: #a3662f;
+  background: #fdf6ec;
+  border-radius: 14rpx;
+}
+
+.order-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+}
+
+.meal {
+  font-size: 21rpx;
+  color: #ab979c;
+}
+
+.act {
+  padding: 14rpx 34rpx;
+  font-size: 25rpx;
+  letter-spacing: 2rpx;
+  color: #ffffff;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #e29aa6, #b95d70);
+  box-shadow: 0 10rpx 20rpx rgba(185, 93, 112, 0.26);
+}
+
+.act:active {
+  opacity: 0.9;
+}
+
+.act.done {
+  background: #f4eae7;
+  color: #b7a5a8;
+  box-shadow: none;
+}
+
+/* ---------- 买菜清单 ---------- */
+.shop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8rpx 20rpx;
+}
+
+.sec-title {
+  display: flex;
+  align-items: center;
+  font-size: 29rpx;
+  font-weight: 600;
+  letter-spacing: 2rpx;
+  color: #43333a;
+}
+
+.sec-title::before {
+  content: "";
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #c9a063;
+  margin-right: 14rpx;
+}
+
+.no-mb {
+  margin-bottom: 0;
+}
+
+.copy {
+  font-size: 22rpx;
+  letter-spacing: 1rpx;
+  color: #a8792f;
+  background: linear-gradient(135deg, #fdf4e3, #f7ead2);
+  border-radius: 999rpx;
+  padding: 12rpx 26rpx;
+  box-shadow: inset 0 0 0 2rpx #f0dbb5;
+}
+
+.shop {
+  padding: 40rpx 32rpx 20rpx;
+}
+
+.shop-row {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+}
+
+.shop-name {
+  font-size: 27rpx;
+  color: #4a3a3e;
+  letter-spacing: 1rpx;
+}
+
+.leader {
+  flex: 1;
+  height: 2rpx;
+  margin: 0 16rpx;
+  background-image: linear-gradient(90deg, #e6d2cd 0, #e6d2cd 50%, transparent 50%);
+  background-size: 14rpx 2rpx;
+  background-repeat: repeat-x;
+}
+
+.shop-amt {
+  font-size: 28rpx;
+  color: #b25a6c;
+  letter-spacing: 0.5rpx;
+}
+
+.shop-tip {
+  margin-top: 18rpx;
+  text-align: center;
+  font-size: 20rpx;
+  color: #bcabae;
+  letter-spacing: 1rpx;
+}
