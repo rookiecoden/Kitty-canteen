@@ -1,11 +1,24 @@
 const menu = require('../../utils/menu');
 const { CUISINES } = require('../../data/dishes');
 const { appConfig } = require('../../utils/config');
+const auth = require('../../utils/auth');
 
 function clockText() {
   const d = new Date();
   const pad = function (n) { return n < 10 ? '0' + n : '' + n; };
   return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+}
+
+// 口令失效时统一提示：回厨房页重新解锁
+function pinExpired() {
+  auth.clearPin();
+  wx.showModal({
+    title: '口令失效了',
+    content: '回厨房页重新输入口令，再进菜单管理就能继续改。',
+    showCancel: false,
+    confirmText: '知道了',
+    success: function () { wx.navigateBack(); },
+  });
 }
 
 Page({
@@ -83,8 +96,9 @@ Page({
       that.setData({ busy: false });
       that.reload();
       wx.showToast({ title: next === 'off' ? '已下架' : '已上架', icon: 'none', duration: 800 });
-    }).catch(function () {
+    }).catch(function (err) {
       that.setData({ busy: false });
+      if (auth.isPinError(err)) { pinExpired(); return; }
       wx.showModal({
         title: '没改成',
         content: '这次没写进云端，检查下网络再试。',
@@ -106,8 +120,9 @@ Page({
         return;
       }
       that.reload();
-    }).catch(function () {
+    }).catch(function (err) {
       that.setData({ busy: false });
+      if (auth.isPinError(err)) { pinExpired(); return; }
       wx.showModal({
         title: '顺序没调成',
         content: '这次没写进云端，检查下网络再试。',
@@ -138,14 +153,15 @@ Page({
         wx.showLoading({ title: '删除中', mask: true });
         menu.remove(id).then(function (r) {
           wx.hideLoading();
-          if (r && r.error) {
+          if (r && r.data && r.data.ok !== true) {
             wx.showToast({ title: '没删掉，重试下', icon: 'none' });
             return;
           }
           that.reload();
           wx.showToast({ title: '已删除', icon: 'none' });
-        }).catch(function () {
+        }).catch(function (err) {
           wx.hideLoading();
+          if (auth.isPinError(err)) { pinExpired(); return; }
           wx.showToast({ title: '网络不太好', icon: 'none' });
         });
       },

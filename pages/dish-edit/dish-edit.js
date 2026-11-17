@@ -1,5 +1,6 @@
 const menu = require('../../utils/menu');
 const { CUISINES } = require('../../data/dishes');
+const auth = require('../../utils/auth');
 
 const SPICY = ['不辣', '微辣', '中辣', '重辣'];
 const MAX_EDGE = 420; // 长边压到这个尺寸，base64 后约 25-35KB
@@ -296,6 +297,16 @@ Page({
         })
         .catch(function (err) {
           that.setData({ saving: false });
+          if (auth.isPinError(err)) {
+            auth.clearPin();
+            wx.showModal({
+              title: '口令失效了',
+              content: '回厨房页重新输入口令，再进来就能保存。',
+              showCancel: false,
+              success: function () { wx.navigateBack(); },
+            });
+            return;
+          }
           wx.showModal({
             title: '没存上',
             content: '菜品没有保存：' + ((err && err.message) || '服务没响应') + '。再试一次？',

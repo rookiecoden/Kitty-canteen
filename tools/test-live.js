@@ -3,7 +3,7 @@
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const store = {};
+const store = { kitchen_pin_v1: '8888' };  // 写操作需要口令，这里是测试用
 global.wx = {
   getStorageSync: (k) => store[k],
   setStorageSync: (k, v) => { store[k] = v; },

@@ -1,6 +1,7 @@
 const { cloud } = require('../../utils/cloud');
 const { appConfig } = require('../../utils/config');
 const { findDish } = require('../../utils/menu');
+const auth = require('../../utils/auth');
 const dateUtil = require('../../utils/date');
 
 const UNLOCK_KEY = 'kitchen_unlocked_v1';
@@ -115,15 +116,32 @@ Page({
   },
 
   onUnlock: function () {
-    const app = getApp();
-    if (this.data.pinInput === app.globalData.kitchenPin) {
-      wx.setStorageSync(UNLOCK_KEY, true);
-      this.setData({ unlocked: true, pinError: '' });
-      this.load();
-      this.startTimer();
-    } else {
-      this.setData({ pinError: '口令不对，再想想' });
+    const pin = (this.data.pinInput || '').trim();
+    if (!pin) {
+      this.setData({ pinError: '先输个口令' });
+      return;
     }
+    const that = this;
+    wx.showLoading({ title: '核对中', mask: true });
+    cloud.database.rpc('admin_check', { pin: pin }).then(function (res) {
+      wx.hideLoading();
+      if (res.error) {
+        that.setData({ pinError: '网络不太好，再试一次' });
+        return;
+      }
+      if (res.data !== true) {
+        that.setData({ pinError: '口令不对，再想想' });
+        return;
+      }
+      auth.setPin(pin);
+      wx.setStorageSync(UNLOCK_KEY, true);
+      that.setData({ unlocked: true, pinError: '', pinInput: '' });
+      that.load();
+      that.startTimer();
+    }).catch(function () {
+      wx.hideLoading();
+      that.setData({ pinError: '网络不太好，再试一次' });
+    });
   },
 
   switchTab: function (e) {
@@ -179,20 +197,27 @@ Page({
     const that = this;
     wx.showLoading({ title: '更新中', mask: true });
     cloud.database
-      .from(appConfig.orderTable)
-      .update({ status: next })
-      .eq('id', id)
-      .select()
+      .rpc('kitchen_set_order_status', { p_pin: auth.getPin(), p_id: Number(id), p_status: next })
       .then(function (res) {
         wx.hideLoading();
-        if (res.error || !Array.isArray(res.data) || res.data.length === 0) {
+        if (res.error) {
+          wx.showToast({ title: '没更新成功，重试下', icon: 'none' });
+          return;
+        }
+        if (!res.data || res.data.ok !== true) {
           wx.showToast({ title: '没更新成功，重试下', icon: 'none' });
           return;
         }
         that.load();
       })
-      .catch(function () {
+      .catch(function (err) {
         wx.hideLoading();
+        if (auth.isPinError(err)) {
+          auth.clearPin();
+          wx.setStorageSync(UNLOCK_KEY, false);
+          that.setData({ unlocked: false, pinError: '口令过期了，重新输一下' });
+          return;
+        }
         wx.showToast({ title: '网络不太好', icon: 'none' });
       });
   },
@@ -224,6 +249,7 @@ Page({
 
   lock: function () {
     wx.removeStorageSync(UNLOCK_KEY);
+    auth.clearPin();
     this.stopTimer();
     this.setData({ unlocked: false, pinInput: '' });
   },

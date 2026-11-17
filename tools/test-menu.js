@@ -2,7 +2,7 @@
 const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
-const calls = { insert: [], upsert: [], update: [], remove: [] };
+const calls = { insert: [], upsert: [], update: [], remove: [], rpc: [] };
 
 function chain(result, opts) {
   const q = {
@@ -14,6 +14,7 @@ function chain(result, opts) {
     upsert: (row) => { calls.upsert.push(row); return q; },
     update: (patch) => { calls.update.push(patch); return q; },
     delete: () => { calls.remove.push(1); return q; },
+    rpc: (fn, args) => { calls.rpc.push({ fn: fn, args: args }); return q; },
     then: (res, rej) => Promise.resolve(typeof result === 'function' ? result() : result).then(res, rej),
   };
   if (opts && opts.failThen) {
@@ -23,6 +24,13 @@ function chain(result, opts) {
 }
 
 function installCloud(fake, store) {
+  // 补一个 rpc 通道：数据层的写操作都走它
+  if (!fake.database.rpc) {
+    fake.database.rpc = function (fn, args) {
+      calls.rpc.push({ fn: fn, args: args });
+      return chain({ data: { ok: true }, error: null });
+    };
+  }
   global.wx = {
     getStorageSync: (k) => store[k],
     setStorageSync: (k, v) => { store[k] = v; },
@@ -84,9 +92,10 @@ function check(name, cond, extra) {
   let menu = installCloud(fake, store);
   let list = await menu.load();
   check('返回内置数量', list.length === BUNDLED_COUNT, list.length);
-  check('触发了一次 seed 写入', calls.insert.length === 1);
-  check('seed 行数正确', calls.insert[0] && calls.insert[0].length === BUNDLED_COUNT);
-  check('seed 行字段完整', calls.insert[0][0].dish_key === 'hong-shao-rou' && calls.insert[0][0].group_id === 'hard');
+  check('触发了一次 seed 写入', calls.rpc.some(function (c) { return c.fn === 'seed_dishes'; }));
+  var seedCall = calls.rpc.filter(function (c) { return c.fn === 'seed_dishes'; })[0];
+  check('seed 行数正确', seedCall && seedCall.args.payload.length === BUNDLED_COUNT);
+  check('seed 行字段完整', seedCall && seedCall.args.payload[0].dish_key === 'hong-shao-rou' && seedCall.args.payload[0].group_id === 'hard');
 
   // 场景 2：云端有数据，含下架项
   console.log('场景2 云端已有数据');
@@ -142,7 +151,8 @@ function check(name, cond, extra) {
   await menu.load();
   const ok = await menu.move('hong-shao-rou', 1);
   check('移动成功', ok === true);
-  check('发出了两次 sort 更新', calls.update.length === 2);
+  var moveCall = calls.rpc.filter(function (c) { return c.fn === 'admin_move_dish'; })[0];
+  check('调用了 admin_move_dish 且 delta 正确', !!moveCall && moveCall.args.p_delta === 1);
   const back = await menu.move('hong-shao-rou', -1);
   check('越界移动被拒', back === false || back === true);
 

@@ -2,6 +2,7 @@
 const bundled = require('../data/dishes');
 const { cloud } = require('./cloud');
 const { appConfig } = require('./config');
+const auth = require('./auth');
 
 const CACHE_KEY = 'menu_cache_v2';
 const URL_TTL = 60 * 60 * 24; // 云图签名 URL 有效期 24 小时，每次进小程序重取
@@ -125,10 +126,9 @@ function resolveImages(list) {
 }
 
 function seed(list) {
+  // 写权限已收紧，灌数据走服务端函数（仅当表为空时生效）
   return cloud.database
-    .from(appConfig.dishTable)
-    .insert(list.map(toRow))
-    .select('id')
+    .rpc('seed_dishes', { payload: list.map(toRow) })
     .then(function () {
       return list;
     })
@@ -213,6 +213,19 @@ function cuisines() {
 }
 
 // ---------- 写入（管理端） ----------
+// 表的写权限已从 anon 收回，所有写操作必须走带上口令的服务端函数
+function rpc(fn, args) {
+  return cloud.database.rpc(fn, args).then(function (res) {
+    if (res && res.error) throw new Error(res.error.message || (fn + " failed"));
+    return res;
+  });
+}
+
+function save(dish) {
+  return rpc("admin_save_dish", { pin: auth.getPin(), payload: toRow(dish) });
+}
+
+// 新菜排到同组最后，由服务端在 admin_save_dish 里按 sort 落库
 function nextSort(cuisine, group) {
   const list = all(true).filter(function (d) {
     return d.cuisine === cuisine && d.group === (group || '');
@@ -222,67 +235,18 @@ function nextSort(cuisine, group) {
   return max + 1;
 }
 
-function save(dish) {
-  const row = toRow(dish);
-  return cloud.database
-    .from(appConfig.dishTable)
-    .upsert(row, { onConflict: 'dish_key' })
-    .select()
-    .then(function (res) {
-      if (res.error) throw new Error(res.error.message || 'save failed');
-      return res;
-    });
-}
-
-function patchRow(id, patch) {
-  return cloud.database
-    .from(appConfig.dishTable)
-    .update(patch)
-    .eq('dish_key', id)
-    .select()
-    .then(function (res) {
-      if (res && res.error) throw new Error(res.error.message || 'update failed');
-      if (res && Array.isArray(res.data) && res.data.length === 0) {
-        throw new Error('no row matched');
-      }
-      return res;
-    });
-}
-
 function setStatus(id, status) {
-  return patchRow(id, { status: status });
+  return rpc("admin_set_dish_status", { p_pin: auth.getPin(), p_key: id, p_status: status });
 }
 
 function remove(id) {
-  return cloud.database
-    .from(appConfig.dishTable)
-    .delete()
-    .eq('dish_key', id)
-    .then(function (res) {
-      if (res && res.error) throw new Error(res.error.message || 'delete failed');
-      return res;
-    });
+  return rpc("admin_delete_dish", { p_pin: auth.getPin(), p_key: id });
 }
 
-// 上下移动：和同组相邻的菜品交换 sort
+// 上下移动由服务端交换 sort，返回 true/false 表示有没有动
 function move(id, delta) {
-  const target = findDish(id);
-  if (!target) return Promise.resolve(false);
-  const siblings = all(true)
-    .filter(function (d) { return d.cuisine === target.cuisine && d.group === target.group; })
-    .sort(function (a, b) { return a.sort - b.sort; });
-  const idx = siblings.findIndex(function (d) { return d.id === id; });
-  const swapIdx = idx + delta;
-  if (idx < 0 || swapIdx < 0 || swapIdx >= siblings.length) return Promise.resolve(false);
-
-  const a = siblings[idx];
-  const b = siblings[swapIdx];
-  const av = a.sort;
-  const bv = b.sort;
-  return Promise.all([
-    patchRow(a.id, { sort: bv }),
-    patchRow(b.id, { sort: av }),
-  ]).then(function () { return true; });
+  return rpc("admin_move_dish", { p_pin: auth.getPin(), p_key: id, p_delta: delta })
+    .then(function (res) { return !!(res.data && res.data.ok); });
 }
 
 function invalidate() {

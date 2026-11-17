@@ -4,7 +4,6 @@ const menu = require('./utils/menu');
 App({
   globalData: {
     appName: appConfig.appName,
-    kitchenPin: appConfig.kitchenPin,
     subscribeTemplateId: appConfig.subscribeTemplateId,
     orderTable: appConfig.orderTable,
   },
